@@ -18,6 +18,14 @@ def neighbors(y, x, plane):
     return ((y+dy, x+dx) for dy, dx in deltas if insidePlane(y+dy, x+dx, plane))
 
 def reachableRolls(plane):
+    return [
+        (y, x)
+        for y in range(len(plane))
+        for x in range(len(plane[0]))
+        if plane[y][x] == '@' and isReachable(y, x, plane)
+    ]
+
+def nReachableRolls(plane):
     return sum(
         int(plane[y][x] == '@' and isReachable(y, x, plane))
         for y in range(len(plane))
@@ -28,4 +36,4 @@ if __name__ == "__main__":
     with open('04.in', 'r') as file:
         inputText = file.read()
     plane = inputText.splitlines()
-    print(reachableRolls(plane))
+    print(nReachableRolls(plane))
