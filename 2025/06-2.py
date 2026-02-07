@@ -5,8 +5,6 @@ def parseProblems(columns):
     currentProblem = []
 
     for column in columns:
-        column = list(column)
-
         if column[-1] != ' ':
             currentOperator = column[-1]
         
