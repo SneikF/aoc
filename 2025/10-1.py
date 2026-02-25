@@ -1,51 +1,47 @@
-def parseLights(line):
-    lights = ''
-    for i in range(1, len(line)):
-        if line[i] == '.':
-            lights += '0'
-        elif line[i] == '#':
-            lights += '1'
-        else:
-            break
-    return int(lights, base=2), len(lights)
+from functools import reduce
+
+def parseLights(text):
+    text = text[1:-1]
+
+    lights = 0
+    for i in range(len(text)):
+        if text[i] == '#':
+            lights |= 1 << (len(text) - i - 1)
+    
+    return lights, len(text)
 
 def parseButton(text, nLights):
-    res = 0
-    indexes = eval(text)
-    if type(indexes) is int:
-        indexes = [indexes]
-    for index in indexes:
-        res |= 1 << (nLights - index - 1)
-    return res
+    text = text[1:-1]
+    indexes = map(int, text.split(','))
+    
+    return reduce(
+        lambda acc, index: acc | (1 << (nLights - index - 1)),
+        indexes,
+        0
+    )
 
+def parse(text):
+    items = text.split()
+    lights, nLights = parseLights(items[0])
+    buttons = [parseButton(line, nLights) for line in items[1:-1]]
 
-def parse(line):    
-    lights, nLights = parseLights(line)
-    line = line[nLights+2:].split()
-    buttons = map(lambda line: parseButton(line, nLights), line[:-1])
-    return lights, list(buttons)
+    return lights, buttons
 
 def subsets(set):
     for i in range(2 ** len(set)):
-        res = []
-        for j in range(len(set)):
-            if i & (1 << j):
-                res.append(set[j])
-        yield res
+        yield [set[j] for j in range(len(set)) if i & (1 << j) != 0]
 
 def lightProduced(buttons):
-    res = 0
-    for button in buttons:
-        res ^= button
-    return res
+    return reduce(lambda x, y: x ^ y, buttons, 0)
 
 if __name__ == '__main__':
     with open('10.in', 'r') as f:
         inputText = f.read()
 
     cases = (parse(line) for line in inputText.splitlines())
-    answers = (min(len(buttons) for buttons in subsets(case[1]) if lightProduced(buttons)==case[0]) for case in cases)
+    answers = (min(
+        len(sequence) for sequence in subsets(buttons) 
+        if lightProduced(sequence) == lights
+    ) for lights, buttons in cases)
+
     print(sum(answers))
-
-
-
