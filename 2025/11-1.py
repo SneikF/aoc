@@ -36,5 +36,3 @@ if __name__ == '__main__':
     graph = parse(inputText)
     inc = incidenceList(graph)
     print(nPathsBetween('you', 'out', inc, {}))
-
-    
