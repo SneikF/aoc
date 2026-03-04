@@ -12,26 +12,29 @@ def parse(inputText):
 
     return graph
 
-def dfs(graph):
-    passedBy = {node: False for node in graph}
-    nPathsFromYou = {node: set([]) for node in graph}
-    nPathsFromYou['you'] = set([str(['you'])])
+def incidenceList(graph):
+    return {node: [inc for inc in graph if node in graph[inc]] for node in graph}
 
-    stack = ['you']
-    while len(stack) > 0:
-        cur = stack.pop()
-        passedBy[cur] = True
+def nPathsBetween(origin, destination, incidenceList, table):
+    handle = f'{origin},{destination}'
+    if handle in table:
+        return table[handle]
 
-        for node in graph[cur]:
-            nPathsFromYou[node] |= set([str(eval(path) + [node]) for path in nPathsFromYou[cur]])
-            stack.append(node)
-        
+    if origin == destination:
+        res = 1
+    else:
+        res = sum(nPathsBetween(origin, dest, incidenceList, table) for dest in incidenceList[destination])
+    
+    table[handle] = res
 
-
-    return len(nPathsFromYou['out'])
+    return res
 
 if __name__ == '__main__':
     with open('11.in', 'r') as f:
         inputText = f.read()
     
-    print(dfs(parse(inputText)))
+    graph = parse(inputText)
+    inc = incidenceList(graph)
+    print(nPathsBetween('you', 'out', inc, {}))
+
+    
