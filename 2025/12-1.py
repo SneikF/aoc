@@ -1,23 +1,38 @@
+import numpy as np
+
+def versions(present):
+    res = [
+        np.array(present)  
+    ]
+    for _ in range(3):
+        res.append(np.rot90(res[-1]))
+    for i in range(4):
+        res.append(np.fliplr(res[i]))
+    return [arr.tolist() for arr in res]
+
 def canTheyFit(grid, presents):
     if len(presents) == 0:
         return True
-    print(presents)
+    # print(presents)
     for i in range(len(presents)):
         present = presents[i]
-        for position in whereToPut(present, grid):
-            presents.pop(i)
-            for version in versions(present):
+        presents.pop(i)
+        for version in versions(present):
+            for position in whereToPut(version, grid):
                 insert(version, position, grid)
+                for line in grid:
+                    print(line)
+                print()
                 if canTheyFit(grid, presents):
                     return True
                 remove(version, position, grid)
-            presents.insert(i, present)
+        presents.insert(i, present)
     
     return False
 
 def whereToPut(present, grid):
-    for y in range(len(grid)):
-        for x in range(len(grid[y])):
+    for y in range(len(grid)-2):
+        for x in range(len(grid[y])-2):
             if itFits((y,x), present, grid):
                 yield (y,x)
 
@@ -25,19 +40,19 @@ def itFits(position, present, grid):
     y0, x0 = position
     for y in range(len(present)):
         for x in range(len(present[y])):
-            try:
-                if not (present[y][x] and not grid[y + y0][x + x0]):
-                    return False
-            except: continue
+            if present[y][x] and grid[y + y0][x + x0]:
+                return False
+
 
     return True
 
 def insert(present, position, grid):
     y0, x0 = position
+    num = max(max(row) for row in grid) + 1
     for y in range(len(present)):
         for x in range(len(present[y])):
             if present[y][x]:
-                grid[y + y0][x + x0] = 1
+                grid[y + y0][x + x0] = num
 
 def remove(present, position, grid):
     y0, x0 = position
@@ -62,7 +77,7 @@ def parseProblems(problemsText, presents):
         for index, amount in enumerate(presentAmountList):
             presentList += [presents[index]]*amount
         
-        yield ([[0]*width]*length, presentList)
+        yield ([[0 for _ in range(width)] for _ in range(length)], presentList)
 
 def parse(inputText):
     items = inputText.split('\n\n')
