@@ -5,7 +5,7 @@
 
 (define houses-provided
     (lambda (inst)
-        (houses-provided-iter inst '(0 0) '('(0 0)))))
+        (houses-provided-iter inst '(0 0) '((0 0)))))
 
 (define houses-provided-iter
     (lambda (inst position houses)
@@ -37,4 +37,33 @@
             ((equal? (car lat) a) #t)
             (else (member? (cdr lat) a)))))
 
-(length (houses-provided (string->list (file-contents "03.in"))))
+(define santa-instructions
+    (lambda (instructions)
+        (cond
+            ((null? instructions) '())
+            (else (cons
+                    (car instructions)
+                    (santa-instructions (cdr (cdr instructions))))))))
+
+(define robosanta-instructions
+    (lambda (instructions)
+        (cond
+            ((null? instructions) '())
+            (else (cons
+                    (car (cdr instructions))
+                    (robosanta-instructions (cdr (cdr instructions))))))))
+
+(define instructions (string->list (file-contents "03.in")))
+
+(define union
+    (lambda (a b)
+        (cond
+            ((null? b) a)
+            ((member? a (car b)) (union a (cdr b)))
+            (else (union (cons (car b) a) (cdr b))))))
+
+(length (houses-provided instructions))
+
+(length (union
+    (houses-provided (santa-instructions instructions))
+    (houses-provided (robosanta-instructions instructions))))
