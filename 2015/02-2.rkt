@@ -15,4 +15,3 @@
       (apply * list)))
 
 (ribbon list-dim2)
-
